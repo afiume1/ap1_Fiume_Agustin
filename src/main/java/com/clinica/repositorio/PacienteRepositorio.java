@@ -3,15 +3,15 @@ package com.clinica.repositorio;
 import com.clinica.modelo.Paciente;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO para la entidad Paciente.
- * Contiene todos los métodos de acceso a la tabla Paciente en la base de datos.
+ * Repositorio para la entidad Paciente.
+ * Contiene todos los métodos de acceso a la tabla Paciente en MySQL.
+ * Es la única clase del sistema que conoce la estructura de esa tabla.
  *
- * @author Fiume, Agustín - VINF016173
+ * @author Fiume, Agustín Nicolás - VINF016173
  */
 public class PacienteRepositorio {
 
@@ -22,8 +22,9 @@ public class PacienteRepositorio {
      * @throws SQLException si ocurre un error en la base de datos
      */
     public void insertar(Paciente paciente) throws SQLException {
-        String sql = "INSERT INTO Paciente (id_paciente, nombre, apellido, dni, " +
-                     "fecha_nacimiento, telefono, email, id_obra_social) " +
+        String sql = "INSERT INTO Paciente " +
+                     "(id_paciente, nombre, apellido, dni, fecha_nacimiento, " +
+                     " telefono, email, id_obra_social) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = Conexion.getConexion();
@@ -37,13 +38,13 @@ public class PacienteRepositorio {
             ps.setString(6, paciente.getTelefono());
             ps.setString(7, paciente.getEmail());
             ps.setInt(8, paciente.getIdObraSocial());
-
             ps.executeUpdate();
         }
     }
 
     /**
-     * Devuelve un paciente por su DNI. Retorna null si no existe.
+     * Busca un paciente por su DNI. Retorna null si no existe.
+     * Se usa para la validación de duplicados del RF01.
      *
      * @param dni el DNI a buscar
      * @return el Paciente encontrado, o null
@@ -51,51 +52,43 @@ public class PacienteRepositorio {
      */
     public Paciente buscarPorDni(String dni) throws SQLException {
         String sql = "SELECT * FROM Paciente WHERE dni = ?";
-
         try (Connection con = Conexion.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, dni);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapear(rs);
-                }
+                if (rs.next()) return mapear(rs);
             }
         }
         return null;
     }
 
     /**
-     * Devuelve todos los pacientes cuyo nombre o apellido contenga el texto buscado.
+     * Busca pacientes cuyo nombre o apellido contenga el texto dado.
      *
      * @param texto fragmento de nombre o apellido
-     * @return lista de pacientes que coinciden
+     * @return lista de pacientes que coinciden, ordenada alfabéticamente
      * @throws SQLException si ocurre un error en la base de datos
      */
     public List<Paciente> buscarPorNombre(String texto) throws SQLException {
         String sql = "SELECT * FROM Paciente " +
                      "WHERE LOWER(nombre) LIKE ? OR LOWER(apellido) LIKE ? " +
                      "ORDER BY apellido, nombre";
-        List<Paciente> lista = new ArrayList<>();
         String patron = "%" + texto.toLowerCase() + "%";
+        List<Paciente> lista = new ArrayList<>();
 
         try (Connection con = Conexion.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, patron);
             ps.setString(2, patron);
-
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    lista.add(mapear(rs));
-                }
+                while (rs.next()) lista.add(mapear(rs));
             }
         }
         return lista;
     }
 
     /**
-     * Devuelve todos los pacientes registrados.
+     * Devuelve todos los pacientes registrados ordenados alfabéticamente.
      *
      * @return lista completa de pacientes
      * @throws SQLException si ocurre un error en la base de datos
@@ -107,10 +100,7 @@ public class PacienteRepositorio {
         try (Connection con = Conexion.getConexion();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
-
-            while (rs.next()) {
-                lista.add(mapear(rs));
-            }
+            while (rs.next()) lista.add(mapear(rs));
         }
         return lista;
     }
@@ -131,7 +121,7 @@ public class PacienteRepositorio {
         return 1;
     }
 
-    /** Mapea un ResultSet a un objeto Paciente */
+    /** Mapea un ResultSet a un objeto Paciente. */
     private Paciente mapear(ResultSet rs) throws SQLException {
         Paciente p = new Paciente();
         p.setIdPaciente(rs.getInt("id_paciente"));
