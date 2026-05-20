@@ -4,9 +4,6 @@ import com.clinica.modelo.Paciente;
 import com.clinica.modelo.Turno;
 import com.clinica.servicio.PacienteService;
 import com.clinica.servicio.TurnoService;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -14,6 +11,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * Ventana principal del sistema de gestión de turnos.
