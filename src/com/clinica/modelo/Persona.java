@@ -1,9 +1,7 @@
 package com.clinica.modelo;
 
 /**
- * Clase abstracta base que representa a cualquier persona del sistema.
- * ABSTRACCION: no puede instanciarse directamente.
- * ENCAPSULAMIENTO: todos los atributos son privados.
+ * Clase abstracta base. ABSTRACCION + ENCAPSULAMIENTO.
  * @author Fiume, Agustin Nicolas - VINF016173
  */
 public abstract class Persona {
@@ -19,10 +17,8 @@ public abstract class Persona {
         this.dni = dni; this.telefono = telefono; this.email = email;
     }
 
-    /** Metodo abstracto - ABSTRACCION: cada subclase define su rol. */
     public abstract String getRol();
 
-    /** Base para POLIMORFISMO: las subclases lo sobreescriben. */
     public void mostrarInfo() {
         System.out.println("  ID      : " + id);
         System.out.println("  Nombre  : " + apellido + ", " + nombre);
@@ -32,7 +28,6 @@ public abstract class Persona {
         System.out.println("  Rol     : " + getRol());
     }
 
-    // ENCAPSULAMIENTO: acceso controlado mediante getters y setters
     public int    getId()               { return id; }
     public void   setId(int id)         { this.id = id; }
     public String getNombre()           { return nombre; }

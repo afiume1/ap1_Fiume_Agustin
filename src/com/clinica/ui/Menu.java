@@ -1,4 +1,6 @@
 package com.clinica.ui;
+import com.clinica.archivo.LogOperaciones;
+import com.clinica.dao.Conexion;
 import com.clinica.excepciones.*;
 import com.clinica.modelo.*;
 import com.clinica.servicio.SistemaGestion;
@@ -6,78 +8,82 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Menu principal del sistema por consola.
- * Usa switch (condicional) y while (repetitiva) para controlar el flujo.
- * Maneja todas las excepciones con try-catch.
+ * Menu principal del sistema. Interfaz de usuario por consola.
+ * Conecta la capa de presentacion con la logica de negocios.
  * @author Fiume, Agustin Nicolas - VINF016173
  */
 public class Menu {
+
     private final SistemaGestion sistema = new SistemaGestion();
-    private final Scanner        scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
     private static final DateTimeFormatter FMT_DT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter FMT_D  = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public void iniciar() {
         System.out.println("+-----------------------------------------+");
-        System.out.println("|  Clinica Salud Integral S.R.L.          |");
-        System.out.println("|  Sistema de Gestion de Turnos            |");
-        System.out.println("|  Fiume, Agustin Nicolas - VINF016173    |");
+        System.out.println("|   Clinica Salud Integral S.R.L.         |");
+        System.out.println("|   Sistema de Gestion de Turnos - v2.0   |");
+        System.out.println("|   Fiume, Agustin Nicolas - VINF016173   |");
         System.out.println("+-----------------------------------------+");
 
         boolean continuar = true;
-        // Estructura repetitiva: while mantiene el menu activo
         while (continuar) {
             mostrarMenuPrincipal();
             int op = leerEntero("Ingresa una opcion: ");
-            // Estructura condicional: switch para manejar opciones
             switch (op) {
-                case 1: menuPacientes();  break;
-                case 2: menuTurnos();     break;
-                case 3: menuPersonal();   break;
-                case 4: menuReportes();   break;
-                case 0: System.out.println("\nSaliendo del sistema. Hasta luego!"); continuar = false; break;
-                default: System.out.println("Opcion invalida. Ingresa un numero del 0 al 4.");
+                case 1: menuPacientes();   break;
+                case 2: menuTurnos();      break;
+                case 3: menuMedicos();     break;
+                case 4: menuReportes();    break;
+                case 5: LogOperaciones.mostrar(); break;
+                case 0:
+                    System.out.println("\nCerrando conexion y saliendo...");
+                    Conexion.cerrar();
+                    continuar = false;
+                    break;
+                default: System.out.println("Opcion invalida.");
             }
         }
         scanner.close();
     }
 
     private void mostrarMenuPrincipal() {
-        System.out.println("\n+-------------------------------------+");
-        System.out.println("|         MENU PRINCIPAL              |");
-        System.out.println("+-------------------------------------+");
-        System.out.println("|  1. Gestion de pacientes            |");
-        System.out.println("|  2. Gestion de turnos               |");
-        System.out.println("|  3. Personal de la clinica          |");
-        System.out.println("|  4. Reportes                        |");
-        System.out.println("|  0. Salir                           |");
-        System.out.println("+-------------------------------------+");
+        System.out.println("\n+---------------------------------------+");
+        System.out.println("|          MENU PRINCIPAL               |");
+        System.out.println("+---------------------------------------+");
+        System.out.println("|  1. Gestion de pacientes              |");
+        System.out.println("|  2. Gestion de turnos                 |");
+        System.out.println("|  3. Medicos de la clinica             |");
+        System.out.println("|  4. Reportes y estadisticas           |");
+        System.out.println("|  5. Ver log de operaciones            |");
+        System.out.println("|  0. Salir                             |");
+        System.out.println("+---------------------------------------+");
     }
 
-    // -- Submenu Pacientes --
+    // ── Pacientes ──────────────────────────────────────────────
     private void menuPacientes() {
         boolean volver = false;
         while (!volver) {
-            System.out.println("\n+-------------------------------------+");
-            System.out.println("|      GESTION DE PACIENTES           |");
-            System.out.println("+-------------------------------------+");
-            System.out.println("|  1. Registrar nuevo paciente        |");
-            System.out.println("|  2. Buscar por DNI                  |");
-            System.out.println("|  3. Buscar por nombre               |");
-            System.out.println("|  4. Listar todos (orden alfabetico) |");
-            System.out.println("|  0. Volver                          |");
-            System.out.println("+-------------------------------------+");
+            System.out.println("\n+---------------------------------------+");
+            System.out.println("|       GESTION DE PACIENTES            |");
+            System.out.println("+---------------------------------------+");
+            System.out.println("|  1. Registrar nuevo paciente          |");
+            System.out.println("|  2. Buscar por DNI                    |");
+            System.out.println("|  3. Buscar por nombre                 |");
+            System.out.println("|  4. Listar todos (orden alfabetico)   |");
+            System.out.println("|  0. Volver                            |");
+            System.out.println("+---------------------------------------+");
             int op = leerEntero("Opcion: ");
             switch (op) {
-                case 1: registrarPaciente();   break;
-                case 2: buscarPorDni();        break;
-                case 3: buscarPorNombre();     break;
-                case 4: listarPacientes();     break;
-                case 0: volver = true;         break;
+                case 1: registrarPaciente();  break;
+                case 2: buscarPorDni();       break;
+                case 3: buscarPorNombre();    break;
+                case 4: listarPacientes();    break;
+                case 0: volver = true;        break;
                 default: System.out.println("Opcion invalida.");
             }
         }
@@ -91,29 +97,24 @@ public class Menu {
             String dni      = leerTexto("DNI: ");
             String telefono = leerTexto("Telefono (Enter para omitir): ");
             String email    = leerTexto("Email (Enter para omitir): ");
-            LocalDate fechaNac = null;
-            boolean ok = false;
-            while (!ok) {
-                try {
-                    fechaNac = LocalDate.parse(leerTexto("Fecha nac. (dd/MM/yyyy): "), FMT_D);
-                    ok = true;
-                } catch (DateTimeParseException e) {
-                    System.out.println("Formato incorrecto. Usa dd/MM/yyyy");
-                }
-            }
+            LocalDate fechaNac = leerFecha("Fecha nac. (dd/MM/yyyy): ");
+
+            // Mostrar especialidades usando el arreglo fijo
             System.out.println("Obra social: 1-OSDE  2-Swiss Medical  3-PAMI  4-Particular");
             int opOS = leerEntero("Opcion: ");
             String[] obras = {"OSDE","Swiss Medical","PAMI","Particular"};
             String os = (opOS >= 1 && opOS <= 4) ? obras[opOS-1] : "Particular";
+
             Paciente nuevo = new Paciente(0, nombre, apellido, dni,
-                telefono.trim().isEmpty() ? null : telefono,
-                email.trim().isEmpty()    ? null : email,
+                telefono.isEmpty() ? null : telefono,
+                email.isEmpty()    ? null : email,
                 fechaNac, os);
             sistema.registrarPaciente(nuevo);
+
         } catch (DniDuplicadoException e) {
             System.out.println("Error: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Error inesperado: " + e.getMessage());
+        } catch (ConexionException e) {
+            System.out.println("Error de conexion: " + e.getMessage());
         }
     }
 
@@ -124,48 +125,50 @@ public class Menu {
             p.mostrarInfo();
         } catch (PacienteNoEncontradoException e) {
             System.out.println("Error: " + e.getMessage());
+        } catch (ConexionException e) {
+            System.out.println("Error de conexion: " + e.getMessage());
         }
     }
 
     private void buscarPorNombre() {
-        List<Paciente> res = sistema.buscarPacientesPorNombre(leerTexto("Nombre o apellido: "));
+        ArrayList<Paciente> res = sistema.buscarPacientesPorNombre(leerTexto("Nombre o apellido: "));
         if (res.isEmpty()) { System.out.println("No se encontraron pacientes."); return; }
         System.out.println("Se encontraron " + res.size() + " paciente(s):");
         for (Paciente p : res) System.out.println("  * " + p);
     }
 
     private void listarPacientes() {
-        List<Paciente> lista = sistema.listarPacientesOrdenados();
+        ArrayList<Paciente> lista = sistema.listarPacientesOrdenados();
         if (lista.isEmpty()) { System.out.println("No hay pacientes registrados."); return; }
         System.out.println("\n=== Pacientes (orden alfabetico) ===");
         int i = 1;
         for (Paciente p : lista)
-            System.out.println(i++ + ". " + p.getNombreCompleto() + " | DNI: " + p.getDni()
-                             + " | " + p.getObraSocial() + " | " + p.calcularEdad() + " anios");
+            System.out.println(i++ + ". " + p.getNombreCompleto()
+                + " | DNI: " + p.getDni() + " | " + p.calcularEdad() + " anios");
     }
 
-    // -- Submenu Turnos --
+    // ── Turnos ─────────────────────────────────────────────────
     private void menuTurnos() {
         boolean volver = false;
         while (!volver) {
-            System.out.println("\n+-------------------------------------+");
-            System.out.println("|        GESTION DE TURNOS            |");
-            System.out.println("+-------------------------------------+");
-            System.out.println("|  1. Asignar nuevo turno             |");
-            System.out.println("|  2. Cancelar turno                  |");
-            System.out.println("|  3. Registrar atencion              |");
-            System.out.println("|  4. Ver historial de paciente       |");
-            System.out.println("|  5. Listar todos los turnos         |");
-            System.out.println("|  0. Volver                          |");
-            System.out.println("+-------------------------------------+");
+            System.out.println("\n+---------------------------------------+");
+            System.out.println("|         GESTION DE TURNOS             |");
+            System.out.println("+---------------------------------------+");
+            System.out.println("|  1. Asignar nuevo turno               |");
+            System.out.println("|  2. Cancelar turno                    |");
+            System.out.println("|  3. Registrar atencion                |");
+            System.out.println("|  4. Ver historial de un paciente      |");
+            System.out.println("|  5. Listar todos los turnos           |");
+            System.out.println("|  0. Volver                            |");
+            System.out.println("+---------------------------------------+");
             int op = leerEntero("Opcion: ");
             switch (op) {
-                case 1: asignarTurno();       break;
-                case 2: cancelarTurno();      break;
-                case 3: registrarAtencion();  break;
-                case 4: verHistorial();       break;
-                case 5: listarTurnos();       break;
-                case 0: volver = true;        break;
+                case 1: asignarTurno();      break;
+                case 2: cancelarTurno();     break;
+                case 3: registrarAtencion(); break;
+                case 4: verHistorial();      break;
+                case 5: listarTurnos();      break;
+                case 0: volver = true;       break;
                 default: System.out.println("Opcion invalida.");
             }
         }
@@ -176,129 +179,111 @@ public class Menu {
         try {
             Paciente paciente = sistema.buscarPacientePorDni(leerTexto("DNI del paciente: "));
             System.out.println("Paciente: " + paciente.getNombreCompleto());
-            List<Medico> medicos = sistema.listarMedicos();
+
+            ArrayList<Medico> medicos = sistema.listarMedicos();
             System.out.println("\nMedicos disponibles:");
             for (int i = 0; i < medicos.size(); i++)
                 System.out.println("  " + (i+1) + ". " + medicos.get(i).getNombreCompleto()
-                    + " (" + medicos.get(i).getEspecialidad() + ") - " + medicos.get(i).getHorarioAtencion());
+                    + " (" + medicos.get(i).getEspecialidad() + ")");
+
             int opMed = leerEntero("Selecciona un medico: ");
             if (opMed < 1 || opMed > medicos.size()) { System.out.println("Opcion invalida."); return; }
             Medico medico = medicos.get(opMed - 1);
-            LocalDateTime fechaHora = null;
-            boolean ok = false;
-            while (!ok) {
-                try {
-                    fechaHora = LocalDateTime.parse(leerTexto("Fecha y hora (dd/MM/yyyy HH:mm): "), FMT_DT);
-                    ok = true;
-                } catch (DateTimeParseException e) {
-                    System.out.println("Formato incorrecto. Usa dd/MM/yyyy HH:mm");
-                }
-            }
+
+            LocalDateTime fechaHora = leerFechaHora("Fecha y hora (dd/MM/yyyy HH:mm): ");
             String motivo = leerTexto("Motivo de la consulta: ");
-            sistema.asignarTurno(paciente, medico, fechaHora, motivo);
-        } catch (PacienteNoEncontradoException e) {
+
+            sistema.asignarTurno(paciente.getId(), medico.getId(), fechaHora, motivo);
+
+        } catch (PacienteNoEncontradoException | HorarioOcupadoException e) {
             System.out.println("Error: " + e.getMessage());
-        } catch (HorarioOcupadoException e) {
-            System.out.println("Error: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Error inesperado: " + e.getMessage());
+        } catch (ConexionException e) {
+            System.out.println("Error de conexion: " + e.getMessage());
         }
     }
 
     private void cancelarTurno() {
         listarTurnos();
         int id = leerEntero("Numero de turno a cancelar: ");
-        System.out.print("Confirma la cancelacion del turno #" + id + "? (s/n): ");
-        if (scanner.nextLine().trim().equalsIgnoreCase("s")) sistema.cancelarTurno(id);
-        else System.out.println("Cancelacion abortada.");
+        System.out.print("Confirmas la cancelacion? (s/n): ");
+        if (scanner.nextLine().trim().equalsIgnoreCase("s")) {
+            try { sistema.cancelarTurno(id); }
+            catch (ConexionException e) { System.out.println("Error: " + e.getMessage()); }
+        } else {
+            System.out.println("Cancelacion abortada.");
+        }
     }
 
     private void registrarAtencion() {
         System.out.println("\n--- Registrar atencion ---");
-        int id       = leerEntero("Numero de turno: ");
-        String diag  = leerTexto("Diagnostico: ");
-        String trat  = leerTexto("Tratamiento indicado: ");
-        sistema.atenderTurno(id, diag, trat);
+        int id      = leerEntero("Numero de turno: ");
+        String diag = leerTexto("Diagnostico: ");
+        String trat = leerTexto("Tratamiento indicado: ");
+        try { sistema.atenderTurno(id, diag, trat); }
+        catch (ConexionException e) { System.out.println("Error: " + e.getMessage()); }
     }
 
     private void verHistorial() {
         try {
             Paciente p = sistema.buscarPacientePorDni(leerTexto("DNI del paciente: "));
-            List<Turno> hist = sistema.listarHistorialPaciente(p);
+            ArrayList<Turno> hist = sistema.listarHistorialPaciente(p.getId());
             System.out.println("\nHistorial de " + p.getNombreCompleto() + ":");
             if (hist.isEmpty()) { System.out.println("  No tiene turnos registrados."); return; }
-            for (Turno t : hist) { System.out.println("-".repeat(50)); t.mostrarInfo(); }
-        } catch (PacienteNoEncontradoException e) {
+            for (Turno t : hist) { System.out.println("----------------------------------------"); t.mostrarInfo(); }
+        } catch (PacienteNoEncontradoException | ConexionException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
     private void listarTurnos() {
-        List<Turno> todos = sistema.getTurnos();
-        if (todos.isEmpty()) { System.out.println("No hay turnos registrados."); return; }
-        System.out.println("\n=== Todos los turnos ===");
-        for (Turno t : todos) System.out.println("  " + t);
+        try {
+            ArrayList<Turno> todos = sistema.listarTodosLosTurnos();
+            if (todos.isEmpty()) { System.out.println("No hay turnos registrados."); return; }
+            System.out.println("\n=== Todos los turnos ===");
+            for (Turno t : todos) System.out.println("  " + t);
+        } catch (ConexionException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
-    // -- Submenu Personal --
-    private void menuPersonal() {
-        boolean volver = false;
-        while (!volver) {
-            System.out.println("\n+-------------------------------------+");
-            System.out.println("|      PERSONAL DE LA CLINICA         |");
-            System.out.println("+-------------------------------------+");
-            System.out.println("|  1. Ver todo el personal            |");
-            System.out.println("|  2. Listar solo medicos             |");
-            System.out.println("|  3. Turnos activos de un medico     |");
-            System.out.println("|  0. Volver                          |");
-            System.out.println("+-------------------------------------+");
-            int op = leerEntero("Opcion: ");
-            switch (op) {
-                case 1: sistema.mostrarTodoElPersonal(); break;
-                case 2: listarMedicos();                 break;
-                case 3: turnosDeUnMedico();              break;
-                case 0: volver = true;                   break;
-                default: System.out.println("Opcion invalida.");
+    // ── Medicos ────────────────────────────────────────────────
+    private void menuMedicos() {
+        try {
+            ArrayList<Medico> medicos = sistema.listarMedicos();
+            System.out.println("\n=== Medicos de la clinica ===");
+            for (Medico m : medicos) {
+                System.out.println("----------------------------------------");
+                m.mostrarInfo();
             }
+            // Mostrar especialidades disponibles usando arreglo fijo
+            System.out.println("\nEspecialidades disponibles en la clinica:");
+            String[] esp = sistema.getEspecialidades();
+            for (int i = 0; i < esp.length; i++)
+                System.out.println("  " + (i+1) + ". " + esp[i]);
+        } catch (ConexionException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
-    private void listarMedicos() {
-        System.out.println("\n=== Medicos de la clinica ===");
-        for (Medico m : sistema.listarMedicos()) { System.out.println("-".repeat(40)); m.mostrarInfo(); }
-    }
-
-    private void turnosDeUnMedico() {
-        List<Medico> medicos = sistema.listarMedicos();
-        for (int i = 0; i < medicos.size(); i++)
-            System.out.println("  " + (i+1) + ". " + medicos.get(i).getNombreCompleto());
-        int op = leerEntero("Selecciona un medico: ");
-        if (op < 1 || op > medicos.size()) { System.out.println("Opcion invalida."); return; }
-        Medico m = medicos.get(op - 1);
-        List<Turno> activos = sistema.listarTurnosActivosDeMedico(m);
-        System.out.println("\nTurnos activos de " + m.getNombreCompleto() + ":");
-        if (activos.isEmpty()) System.out.println("  No tiene turnos activos.");
-        else for (Turno t : activos) System.out.println("  " + t);
-    }
-
-    // -- Reportes --
+    // ── Reportes ────────────────────────────────────────────────
     private void menuReportes() {
-        System.out.println("\n=== REPORTES ===");
-        System.out.println("Total de pacientes  : " + sistema.getPacientes().size());
-        System.out.println("Total de turnos     : " + sistema.getTurnos().size());
-        long activos=0, atendidos=0, cancelados=0;
-        for (Turno t : sistema.getTurnos()) {
-            if      (t.getEstado() == Turno.Estado.ACTIVO)    activos++;
-            else if (t.getEstado() == Turno.Estado.ATENDIDO)  atendidos++;
-            else                                               cancelados++;
+        System.out.println("\n=== REPORTES Y ESTADISTICAS ===");
+        try {
+            // Usar el arreglo de estadisticas
+            int[] stats = sistema.obtenerEstadisticas();
+            int total = stats[0] + stats[1] + stats[2];
+            System.out.println("Total de turnos     : " + total);
+            System.out.println("  -> Activos        : " + stats[0]);
+            System.out.println("  -> Atendidos      : " + stats[1]);
+            System.out.println("  -> Cancelados     : " + stats[2]);
+            System.out.println("Total de pacientes  : " + sistema.listarPacientesOrdenados().size());
+            System.out.println("Total de medicos    : " + sistema.listarMedicos().size());
+        } catch (ConexionException e) {
+            System.out.println("Error al obtener reportes: " + e.getMessage());
         }
-        System.out.println("  -> Activos         : " + activos);
-        System.out.println("  -> Atendidos       : " + atendidos);
-        System.out.println("  -> Cancelados      : " + cancelados);
-        System.out.println("Total de medicos    : " + sistema.listarMedicos().size());
     }
 
-    // -- Helpers --
+    // ── Helpers ────────────────────────────────────────────────
     private int leerEntero(String msg) {
         while (true) {
             try {
@@ -311,8 +296,21 @@ public class Menu {
     }
 
     private String leerTexto(String msg) {
-        System.out.print(msg);
-        return scanner.nextLine().trim();
+        System.out.print(msg); return scanner.nextLine().trim();
+    }
+
+    private LocalDate leerFecha(String msg) {
+        while (true) {
+            try { return LocalDate.parse(leerTexto(msg), FMT_D); }
+            catch (DateTimeParseException e) { System.out.println("Formato incorrecto. Usa dd/MM/yyyy"); }
+        }
+    }
+
+    private LocalDateTime leerFechaHora(String msg) {
+        while (true) {
+            try { return LocalDateTime.parse(leerTexto(msg), FMT_DT); }
+            catch (DateTimeParseException e) { System.out.println("Formato incorrecto. Usa dd/MM/yyyy HH:mm"); }
+        }
     }
 
     public static void main(String[] args) { new Menu().iniciar(); }

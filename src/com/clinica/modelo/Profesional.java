@@ -1,8 +1,7 @@
 package com.clinica.modelo;
 
 /**
- * Clase abstracta - segundo nivel de jerarquia Persona -> Profesional.
- * ABSTRACCION: define getFuncion() que implementan Medico y Administrativo.
+ * Profesional de la clinica. ABSTRACCION segundo nivel.
  * @author Fiume, Agustin Nicolas - VINF016173
  */
 public abstract class Profesional extends Persona {
