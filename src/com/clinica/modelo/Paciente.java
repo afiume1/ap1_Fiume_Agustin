@@ -25,7 +25,7 @@ public class Paciente extends Persona {
     public void mostrarInfo() {
         super.mostrarInfo();
         System.out.println("  Fecha nac.: " + fechaNacimiento);
-        System.out.println("  Edad      : " + calcularEdad() + " anios");
+        System.out.println("  Edad      : " + calcularEdad() + " años");
         System.out.println("  Obra soc. : " + (obraSocial != null ? obraSocial : "Particular"));
         System.out.println("  Turnos    : " + cantidadTurnos);
     }
