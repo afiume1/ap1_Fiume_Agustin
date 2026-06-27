@@ -3,9 +3,7 @@ import java.time.LocalDate;
 import java.time.Period;
 
 /**
- * Representa a un paciente de la clinica.
- * HERENCIA: extiende Persona.
- * POLIMORFISMO: sobreescribe getRol() y mostrarInfo().
+ * Paciente de la clinica. HERENCIA de Persona.
  * @author Fiume, Agustin Nicolas - VINF016173
  */
 public class Paciente extends Persona {
@@ -41,4 +39,5 @@ public class Paciente extends Persona {
     public String    getObraSocial()                 { return obraSocial; }
     public void      setObraSocial(String os)        { this.obraSocial = os; }
     public int       getCantidadTurnos()             { return cantidadTurnos; }
+    public void      setCantidadTurnos(int n)        { this.cantidadTurnos = n; }
 }
