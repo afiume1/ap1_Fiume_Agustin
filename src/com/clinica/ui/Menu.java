@@ -144,7 +144,7 @@ public class Menu {
         int i = 1;
         for (Paciente p : lista)
             System.out.println(i++ + ". " + p.getNombreCompleto()
-                + " | DNI: " + p.getDni() + " | " + p.calcularEdad() + " anios");
+                + " | DNI: " + p.getDni() + " | " + p.calcularEdad() + " años");
     }
 
     // ── Turnos ─────────────────────────────────────────────────
